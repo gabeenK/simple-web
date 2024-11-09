@@ -22,7 +22,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AWS_KEY }} # EC2 인스턴스의 SSH 키
       
-      - name: 4. List files
+      - name: 4. 파일 목록 보기
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} "ls -la /home/${{ secrets.AWS_USER }}"
       
