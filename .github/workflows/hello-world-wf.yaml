@@ -1,6 +1,5 @@
 name: first-workflow
 on: [push]
-
 jobs:
   shell-cmd-job:
     runs-on: ubuntu-latest
@@ -13,7 +12,7 @@ jobs:
           npm -v
   parallel-job:
     runs-on: macos-latest
-    steps:
+    steps: 
       - name: show software version
         run: sw_vers
   dependant-job:
