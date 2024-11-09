@@ -10,22 +10,27 @@ jobs:
       - name: 소스코드 가져오기
         uses: actions/checkout@v3
        
-      - name: AWS 접속정보 설정
+      - name: 1. AWS 접속정보 설정
         uses: aws-actions/configure-aws-credentials@v3
         with:  #actions에 전달하는 파라미터 지정 (특정 소스코드를 가져오고 싶을 때)
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # github context (깃헙에서 설정한 모든 정보: 깃헙 러너에 자동으로 들어가는 값 존재)
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2 # 사용할 AWS 리전2
 
-      - name: SSH 키 설정
+      - name: 2. SSH 키 설정
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.AWS_KEY }} # EC2 인스턴스의 SSH 키
       
-      - name: List files
+      - name: 3. List files
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} "ls -la /home/${{ secrets.AWS_USER }}"
-      - name: Copy Files to EC2
+      
+      - name: 4. 파일 서버로 복사 Copy Files to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} "sudo chown -R ec2-user:ec2-user /usr/share/nginx/html"
           scp -o StrictHostKeyChecking=no -r ./* ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }}:/usr/share/nginx/html
+
+      - name: 5. Restart Web Server
+        run: |
+          ssh -v -o StrictHostKeyChecking=no ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} "sudo systemctl restart nginx || sudo systemctl restart httpd"
