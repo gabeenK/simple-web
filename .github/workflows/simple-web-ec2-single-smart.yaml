@@ -1,5 +1,5 @@
 ## ec2 s3 deploy12
-name: Deploy to AWS
+name: Smart Deploy to AWS
 on:
   push:
     branches: [main]
@@ -8,30 +8,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: 1. 소스 다운로드
+      - name: Checkout source code
         uses: actions/checkout@v2
 
-      - name: 2. aws cli 접속정보 설정
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: 3. 아티팩트 만들기 # .zip, .jar, build
+      - name: Create deployment package
         run: |
           pwd
           zip -r deploy.zip ./*
 
-      - name: 4. S3에 아티팩트 업로드
+      - name: Upload to S3
         run: |
           aws s3 cp deploy.zip s3://${{ secrets.S3_BUCKET }}/deploy.zip
 
-      # (없어도 되긴함, 하지만 여러번 deploy 시킬 때 앞의 deploy를 중단하고 실행하면 빠름)
-      # (list-deployments : deployment 조회)
-      - name: 5. 현재 진행중인 deploy의 id를 가져오고 중단 시킴 
+      - name: Check and stop existing deployments
         run: |
-          DEPLOYMENTS=$(aws deploy  \
+          DEPLOYMENTS=$(aws deploy list-deployments \
             --application-name simple-web-content \
             --deployment-group-name simple-web-deploy-group \
             --include-only-statuses "InProgress" \
@@ -47,8 +45,7 @@ jobs:
             sleep 10
           fi
 
-      # 배포 후 결과 값 (output) : deploymentId
-      - name: 6. aws deploy를 통해 배포한다.
+      - name: Start CodeDeploy deployment
         id: deploy
         run: |
           DEPLOYMENT_ID=$(aws deploy create-deployment \
@@ -61,7 +58,6 @@ jobs:
           #echo "{name}=deployment_id" >> $GITHUB_OUTPUT
           echo "deployment_id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
 
-      # 배포 후 결과 (deploymentId)가 있는지 꺼내서 확인함
       - name: Wait for deployment to complete
         run: |
           aws deploy wait deployment-successful --deployment-id ${{ steps.deploy.outputs.deployment_id }}
