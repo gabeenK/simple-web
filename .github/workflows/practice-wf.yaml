@@ -7,4 +7,4 @@ jobs:
       - name: Check Python Version
         run: python --version
       - name: Check pip version
-        run: pup --version
+        run: pip --version
