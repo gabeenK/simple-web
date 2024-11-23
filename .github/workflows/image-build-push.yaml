@@ -42,6 +42,7 @@ jobs:
           repository: gabeenK/simple-service
           ref: main
           path: .
+          token: ${{ secrets.PAT }} 
       
       - name: 6.쿠버네티스 매니페스트 파일 이미지 태그 업데이트
         run: |
@@ -49,7 +50,7 @@ jobs:
           ls -la
           # 현재 파일 내용 확인
           cat simple-deploy.yaml
-          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}\/simple.*|image: ${{ secrets.DOCKER_USERNAME }}\/simple:${{ env.DOCKER_TAG }}|g" simple-deploy.yaml
+          sed -i "s|image: ${{ secrets.DOCKER_USERNAME }}\/simple-web.*|image: ${{ secrets.DOCKER_USERNAME }}\/simple-web:${{ env.DOCKER_TAG }}|g" simple-deploy.yaml
           # 변경된 내용 확인
           cat simple-deploy.yaml
       
