@@ -1,24 +1,25 @@
- # GitHub Actions용 IAM 역할 생성
-resource "aws_iam_role" "github_actions_role" {
-  name = "GithubActionsRole"
+# -------------- AWS 자격증명으로 aws deploy를 진행하기 때문에 우리는 사용하지 않음 --------------
+#  # GitHub Actions용 IAM 역할 생성
+# resource "aws_iam_role" "github_actions_role" {
+#   name = "GithubActionsRole"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-        }
-      }
-    ]
-  })
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole"
+#         Effect = "Allow"
+#         Principal = {
+#           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+#         }
+#       }
+#     ]
+#   })
 
-  tags = {
-    Name = "github-actions-role"
-  }
-}
+#   tags = {
+#     Name = "github-actions-role"
+#   }
+# }
 
 # CodeDeploy를 위한 EC2 IAM 역할
 resource "aws_iam_role" "ec2_codedeploy_role" {
